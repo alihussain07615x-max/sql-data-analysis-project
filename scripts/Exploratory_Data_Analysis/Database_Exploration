@@ -1,9 +1,9 @@
 -- Explore all objects in the database
-SELECT * FROM INFORMATION_SCHEMA.TABLES;
+SELECT * FROM INFORMATION_SCHEMA.TABLES  WHERE TABLE_SCHEMA = 'gold';
 
 
 -- Explore all columns in the database
-SELECT * FROM INFORMATION_SCHEMA.COLUMNS;
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_SCHEMA = 'gold';
 
 -- Row Counts & Basic Volume
 
