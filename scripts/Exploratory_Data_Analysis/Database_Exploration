@@ -1,3 +1,10 @@
+-- Explore all objects in the database
+SELECT * FROM INFORMATION_SCHEMA.TABLES;
+
+
+-- Explore all columns in the database
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS;
+
 -- Row Counts & Basic Volume
 
 -- How many records are in fact_sales, dim_customer, and dim_products?
