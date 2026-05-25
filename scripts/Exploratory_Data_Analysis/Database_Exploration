@@ -4,19 +4,22 @@ SELECT * FROM INFORMATION_SCHEMA.TABLES  WHERE TABLE_SCHEMA = 'gold';
 
 -- Explore all columns in the database
 SELECT * FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_SCHEMA = 'gold';
-
 -- Row Counts & Basic Volume
 
 -- How many records are in fact_sales, dim_customer, and dim_products?
 SELECT
 COUNT(*) AS total_records
 FROM gold.fact_sales;
+-- Results total records = 60398
 SELECT
 COUNT(*) AS total_records
 FROM gold.dim_customer;
+-- Results total records = 18484
 SELECT
 COUNT(*) AS total_records
 FROM gold.dim_products;
+-- Results total records = 295
+
 
 -- Are there customers or products that have no sales at all? (orphaned dimension records)
 
@@ -28,8 +31,10 @@ FROM gold.dim_customer c
 FULL JOIN gold.fact_sales f
 ON c.customer_key = f.customer_key
 WHERE f.sales_amount = 0 OR f.sales_amount IS NULL;
+-- No results
 
 SELECT
+COUNT(*) OVER() AS total_products,
 f.product_key,
 p.product_name,
 f.sales_amount
@@ -37,6 +42,7 @@ FROM gold.dim_products p
 FULL JOIN gold.fact_sales f
 ON p.product_key = f.product_key
 WHERE f.sales_amount = 0 OR f.sales_amount IS NULL;
+-- 165 products that have no sales at all
 
 
 -- ================================================================================
@@ -47,6 +53,8 @@ SELECT
 *
 FROM gold.fact_sales
 WHERE due_date IS NULL OR shipping_date IS NULL OR price IS NULL OR quantity IS NULL OR sales_amount IS NULL ;
+-- No results 
+
 -- Referential integrity: Do all customer_key and product_key in fact_sales actually exist in their dimension tables?
 SELECT
 customer_key,
@@ -54,18 +62,24 @@ product_key
 FROM gold.fact_sales
 WHERE customer_key NOT IN  (SELECT customer_key FROM gold.dim_customer)
 OR product_key NOT IN (SELECT product_key FROM gold.dim_products);
+-- No results 
+
 -- Negative or zero values: Any rows where price <= 0 or quantity <= 0?
 SELECT
 price,
 quantity
 FROM gold.fact_sales
 WHERE price <= 0 OR quantity <=0;
+-- No results 
+
 -- Consistency check: Does sales_amount always equal quantity * price, or are there discrepancies?
 
 SELECT
 sales_amount
 FROM gold.fact_sales
 WHERE sales_amount != quantity * price;
+-- No results 
+
 -- ================================================================================
 --  Date Range & Time Coverage
 
@@ -75,6 +89,7 @@ MIN(order_date) AS first_order,
 MAX(order_date) AS last_order,
 DATEDIFF(year,MIN(order_date),MAX(order_date)) AS years_span
 FROM gold.fact_sales;
+-- first_order = 2010-12-29, last_order = 2014-01-28, years_span = 4
 
 -- Are there orders where shipping_date < order_date (impossible dates)?
 SELECT 
@@ -82,6 +97,7 @@ shipping_date,
 order_date
 FROM gold.fact_sales
 WHERE shipping_date < order_date;
+-- No results
 
 -- Are there orders where due_date < shipping_date?
 SELECT 
@@ -89,35 +105,45 @@ due_date,
 shipping_date
 FROM gold.fact_sales
 WHERE due_date < shipping_date;
-
+-- No results
 
 -- ================================================================================
 --  Customer Dimension
 
 -- Distribution by country, gender, material_status
 SELECT  country, COUNT(*) AS total_customers FROM gold.dim_customer GROUP BY country;
+-- country = 7
 SELECT  gender, COUNT(*) AS total_customers FROM gold.dim_customer GROUP BY gender;
+-- gender = 2
 SELECT  material_status, COUNT(*) AS total_customers FROM gold.dim_customer GROUP BY material_status;
+-- material_status = 2
 
 -- Any missing birthdate values? What's the age range?
 SELECT birthdate FROM gold.dim_customer WHERE birthdate IS NULL;
+-- 17 missing birthdate
 SELECT
 MIN(DATEDIFF(year, birthdate, GETDATE())) AS youngest,
 MAX(DATEDIFF(year, birthdate, GETDATE())) AS oldest,
 AVG(DATEDIFF(year, birthdate, GETDATE())) AS avg_age
 FROM gold.dim_customer;
+-- youngest customer = 40, oldest customer = 110, avg_ag = 57
+
 -- How many customers have never placed an order?
 SELECT 
 customer_key
 FROM gold.dim_customer
 WHERE customer_key NOT IN(SELECT customer_key FROM gold.fact_sales );
+-- No results
 -- ================================================================================
 --  Product Dimension
 
 -- How many distinct category, subcategory, and product_line values exist?
 SELECT  category, COUNT(*) AS total_products FROM gold.dim_products GROUP BY category;
+-- 4 categories
 SELECT  subcategory, COUNT(*) AS total_products FROM gold.dim_products GROUP BY subcategory;
+-- 37 subcategories
 SELECT  product_line, COUNT(*) AS total_products FROM gold.dim_products GROUP BY product_line;
+-- 4 product lines
 
 -- Price range per category — any outliers?
 SELECT
@@ -129,8 +155,14 @@ FROM gold.fact_sales f
 LEFT JOIN gold.dim_products p
 ON p.product_key = f.product_key
 GROUP BY p.category;
+-- clothing min = 9, max = 70, avg = 37
+-- bikes min = 540, max = 3578, avg = 1862
+-- accessories min = 2, max = 159, avg = 19
+
+
 -- ================================================================================
 --  Sales Facts
 
 -- Total revenue, average order value
 SELECT SUM(sales_amount) AS total_revenue, AVG(sales_amount) AS avg_order_value FROM gold.fact_sales;
+-- total revenue = 29356250,  avg order value = 486
