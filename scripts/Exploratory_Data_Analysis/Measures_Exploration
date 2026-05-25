@@ -1,0 +1,49 @@
+-- Basic Statistics for each measure (sales_amount, price, quantity)
+-- What is the total, average, min, and max?
+SELECT
+SUM(sales_amount) total_sales,
+AVG(sales_amount) avg_sales,
+MIN(sales_amount) min_sales,
+MAX(sales_amount) max_sales,
+SUM(price) total_price,
+AVG(price) avg_price,
+MIN(price) min_price,
+MAX(price) max_price,
+SUM(quantity) total_quantity,
+AVG(quantity) avg_quantity,
+MIN(quantity) min_quantity,
+MAX(quantity) max_quantity
+FROM gold.fact_sales
+-- Results total sales = 29356250, avg sales = 486, min sales = 2, max sales = 3678
+-- Results total price = 29356250, avg price = 486, min price = 2, max price = 3678
+-- Results total quantity = 60423, avg quantity = 1, min quantity = 1, max quantity = 10
+-- Spread & Behavior
+
+
+-- =====================================================================================
+
+
+-- How different is the average from the min/max? (tells you if there are outliers)
+SELECT 
+    -- Calculate the absolute distance from Min to Average
+    (AVG(sales_amount) - MIN(sales_amount)) AS distance_to_min,
+    
+    -- Calculate the absolute distance from Average to Max
+    (MAX(sales_amount) - AVG(sales_amount)) AS distance_to_max,
+
+    --  Ratio/Skewness indicator 
+    -- If this ratio is far from 1, your data is heavily skewed by outliers
+    (MAX(sales_amount) - AVG(sales_amount)) / NULLIF(AVG(sales_amount) - MIN(sales_amount), 0) AS skew_ratio
+FROM gold.fact_sales
+-- distance_to_min = 484
+-- distance_to_max = 3092
+-- skew ratio = 6 → data is right-skewed, high-value orders pulling the max up
+
+-- =====================================================================================
+
+-- What is the total number of orders? (COUNT of order_number)
+
+SELECT
+COUNT(DISTINCT order_number) AS total_orders
+FROM gold.fact_sales
+-- total orders 27659
