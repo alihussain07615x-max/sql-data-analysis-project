@@ -1,0 +1,52 @@
+-- By Customer Dimension
+
+-- Total sales by country
+-- Total customers by country
+
+SELECT
+c.country,
+SUM(f.sales_amount) AS total_sales,
+COUNT(DISTINCT c.customer_key) AS total_customer
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_customer c
+ON c.customer_key = f.customer_key
+GROUP BY c.country
+ORDER BY total_sales DESC;
+
+-- Total sales by gender
+SELECT
+c.gender,
+SUM(f.sales_amount) AS total_sales,
+COUNT(DISTINCT c.customer_key) AS total_customer
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_customer c
+ON c.customer_key = f.customer_key
+GROUP BY c.gender
+ORDER BY total_sales DESC;
+
+-- =======================================================================
+-- By Product Dimension
+
+-- Total sales by category
+-- Total products by category
+SELECT 
+p.category,
+SUM(f.sales_amount) AS total_sales,
+COUNT(DISTINCT p.product_key) AS total_products
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_products p
+ON p.product_key = f.product_key
+GROUP BY p.category
+ORDER BY total_sales DESC;
+
+-- Total sales by subcategory
+-- Total products by subcategory
+SELECT 
+p.subcategory,
+SUM(f.sales_amount) AS total_sales,
+COUNT(DISTINCT p.product_key) AS total_products
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_products p
+ON p.product_key = f.product_key
+GROUP BY p.subcategory
+ORDER BY total_sales DESC;
