@@ -1,0 +1,65 @@
+-- Ranking Exploration
+
+
+
+-- Top & Bottom Performers
+-- By Product Details
+-- Which **subcategory** ranks highest in sales?
+SELECT TOP 5
+dp.subcategory,
+SUM(fs.sales_amount) total_revenue
+FROM gold.fact_sales fs
+LEFT JOIN gold.dim_products dp
+ON dp.product_key = fs.product_key
+GROUP BY dp.subcategory
+ORDER BY total_revenue DESC
+-- Which 5 Product generate the highest revenue
+SELECT TOP 5
+dp.product_name,
+SUM(fs.sales_amount) total_revenue
+FROM gold.fact_sales fs
+LEFT JOIN gold.dim_products dp
+ON dp.product_key = fs.product_key
+GROUP BY dp.product_name
+ORDER BY total_revenue DESC
+
+-- What are the 5 worst-performing products in term of sales
+SELECT TOP 5
+dp.product_name,
+SUM(fs.sales_amount) total_revenue
+FROM gold.fact_sales fs
+LEFT JOIN gold.dim_products dp
+ON dp.product_key = fs.product_key
+GROUP BY dp.product_name
+HAVING COUNT(DISTINCT fs.order_number) > 10
+ORDER BY total_revenue ASC
+
+
+-- By customers details
+-- Find the top 10 customers who have generated the highest revenue
+SELECT *
+FROM (
+SELECT 
+dc.customer_id,
+dc.first_name,
+dc.last_name,
+SUM(fs.sales_amount) total_revenue,
+ROW_NUMBER() OVER(ORDER BY SUM(fs.sales_amount) DESC ) customer_rank
+FROM gold.fact_sales fs
+LEFT JOIN gold.dim_customer dc
+ON dc.customer_key = fs.customer_key
+GROUP BY dc.customer_id , dc.first_name, dc.last_name)t
+WHERE customer_rank <= 10
+
+-- Find 3 customers who generate the fewest order
+
+SELECT TOP 3
+dc.customer_id,
+dc.first_name,
+dc.last_name,
+COUNT(DISTINCT fs.order_number) total_orders
+FROM gold.fact_sales fs
+LEFT JOIN gold.dim_customer dc
+ON dc.customer_key = fs.customer_key
+GROUP BY dc.customer_id , dc.first_name, dc.last_name
+ORDER BY total_orders ASC
