@@ -1,0 +1,32 @@
+-- By Year
+
+-- Total sales per year
+-- Total customers per year
+-- Total orders per year
+SELECT
+YEAR(order_date) AS year,
+SUM(sales_amount) AS total_sales,
+COUNT(DISTINCT order_number) AS total_orders,
+COUNT(DISTINCT customer_key) AS total_customers
+FROM gold.fact_sales
+GROUP BY YEAR(order_date)
+ORDER BY year ASC;
+
+
+
+-- By Month
+
+-- Which month of the year performs best regardless of year?
+SELECT
+FORMAT(order_date, 'MMMM') AS month,
+SUM(sales_amount) AS total_sales
+FROM gold.fact_sales
+GROUP BY FORMAT(order_date, 'MMMM')
+ORDER BY total_sales DESC;
+-- How did sales evolve month by month over time
+SELECT
+DATETRUNC(month,order_date) AS date,
+SUM(sales_amount) AS total_sales
+FROM gold.fact_sales
+GROUP BY DATETRUNC(month,order_date)
+ORDER BY date ASC;
