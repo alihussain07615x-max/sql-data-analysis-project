@@ -1,0 +1,59 @@
+-- Performance Analysis — 
+
+--How does each product's sales compare to the overall average product sales?
+SELECT
+product_name,
+average_sales,
+AVG(average_sales) OVER() AS overall_average,
+average_sales - AVG(average_sales) OVER() AS comparison
+FROM(
+SELECT
+p.product_name,
+AVG(f.sales_amount) average_sales
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_products p 
+ON f.product_key = p.product_key
+GROUP BY p.product_name
+)t
+--How does each customer's sales compare to the overall average customer sales?
+SELECT
+customer_key,
+average_sales,
+AVG(average_sales) OVER() AS overall_average,
+average_sales - AVG(average_sales) OVER() AS comparison
+FROM(
+SELECT
+c.customer_key,
+AVG(f.sales_amount) average_sales
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_customer c
+ON f.customer_key = c.customer_key
+GROUP BY c.customer_key
+)t
+
+-- vs Previous Year (Year over Year)
+
+--For each product, compare the current year's sales to last year's sales
+--Calculate the difference and whether it's better or worse
+WITH calculation AS (
+SELECT
+product_name,
+order_year,
+this_year_sales,
+LAG(this_year_sales) OVER(PARTITION BY product_name ORDER BY order_year) AS last_year_sale,
+this_year_sales - LAG(this_year_sales) OVER(PARTITION BY product_name ORDER BY order_year) AS comparison
+FROM (
+SELECT
+p.product_name,
+year(f.order_date) AS order_year,
+SUM(f.sales_amount) AS this_year_sales
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_products p 
+ON f.product_key = p.product_key
+GROUP BY year(f.order_date), product_name
+)T
+)
+SELECT 
+*
+FROM calculation
+WHERE comparison > 0
