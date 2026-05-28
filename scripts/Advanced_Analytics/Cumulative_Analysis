@@ -1,0 +1,27 @@
+-- Running Totals
+-- Running total of sales over time (month by month)
+SELECT
+order_date,
+total_sales,
+SUM(total_sales) OVER(ORDER BY order_date ASC) AS running_total
+FROM (
+SELECT
+DATETRUNC(month,order_date) AS order_date,
+SUM(sales_amount)  AS total_sales
+FROM gold.fact_sales 
+GROUP BY DATETRUNC(month,order_date)
+)t
+
+-- Moving Averages
+-- Moving average of price over time (to smooth out fluctuations and spot trends)
+SELECT
+order_date,
+avg_price,
+AVG(avg_price) OVER(ORDER BY order_date ASC ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS moving_average
+FROM (
+    SELECT
+    DATETRUNC(month, order_date) AS order_date,
+    AVG(price) AS avg_price
+    FROM gold.fact_sales
+    GROUP BY DATETRUNC(month, order_date)
+)t
