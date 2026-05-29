@@ -138,11 +138,10 @@ A consolidated product-level VIEW that includes:
 
 ## 👤 About This Project
 
-This project was built as part of a personal data analytics portfolio, 
-inspired by a data warehouse tutorial series. While the dataset and 
-high-level project structure come from that course, all SQL queries 
-were written independently without referencing the tutorial's code.
+This project was built as part of a personal data analytics portfolio.
+It follows a structured analytical workflow from raw database exploration 
+through to advanced analytics and production-ready reporting views — 
+the same workflow used in real data analyst roles.
 
-The goal was to go beyond the tutorial — rethinking each analytical 
-step from scratch and in some cases taking a different approach 
-to arrive at the same result.
+All queries were written independently, including the analytical logic,
+segmentation design, KPI calculations, and final report views.
