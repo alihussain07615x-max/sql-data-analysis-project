@@ -138,4 +138,11 @@ A consolidated product-level VIEW that includes:
 
 ## 👤 About This Project
 
-This project was built entirely from scratch without tutorials as part of a personal data analytics portfolio. It follows a structured analytical workflow from raw exploration through to production-ready reporting views — the same workflow used in real data analyst roles.
+This project was built as part of a personal data analytics portfolio, 
+inspired by a data warehouse tutorial series. While the dataset and 
+high-level project structure come from that course, all SQL queries 
+were written independently without referencing the tutorial's code.
+
+The goal was to go beyond the tutorial — rethinking each analytical 
+step from scratch and in some cases taking a different approach 
+to arrive at the same result.
