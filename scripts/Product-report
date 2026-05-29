@@ -59,7 +59,9 @@ total_quantity,
 total_customer,
 lifespan,
 DATEDIFF(MONTH, last_order, GETDATE()) AS recency,
-total_sales / total_orders AS avg_order_revenue,
+CASE WHEN total_orders = 0 THEN 0
+ELSE total_sales / total_orders
+END AS avg_order_revenue ,
 CASE WHEN lifespan = 0 THEN 0
 ELSE total_sales / lifespan 
 END AS avg_monthly_revenue
