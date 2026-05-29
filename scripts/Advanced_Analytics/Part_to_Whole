@@ -1,0 +1,94 @@
+-- Contribution to Total Sales
+
+-- Which categories contribute the most to overall sales
+
+WITH category_sales AS (
+
+SELECT
+p.category,
+SUM(f.sales_amount) total_sales
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_products p
+ON f.product_key = p.product_key
+GROUP BY p.category
+)
+SELECT
+category,
+total_sales,
+SUM(total_sales) OVER() overall_sales,
+CONCAT(ROUND((CAST(total_sales AS FLOAT) / SUM(total_sales) OVER() )* 100, 2 ), '%')AS percentage_of_total
+FROM category_sales
+ORDER BY total_sales DESC;
+
+-- By quantity
+WITH category_quantity AS (
+
+SELECT
+p.category,
+SUM(f.quantity) total_quantity
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_products p
+ON f.product_key = p.product_key
+GROUP BY p.category
+)
+SELECT
+category,
+total_quantity,
+SUM(total_quantity) OVER() overall_sales,
+CONCAT(ROUND((CAST(total_quantity AS FLOAT) / SUM(total_quantity) OVER() )* 100, 2 ), '%')AS percentage_of_total
+FROM category_quantity
+ORDER BY total_quantity DESC;
+
+-- By price
+WITH category_price AS (
+
+SELECT
+p.category,
+SUM(f.price) total_price
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_products p
+ON f.product_key = p.product_key
+GROUP BY p.category
+)
+SELECT
+category,
+total_price,
+SUM(total_price) OVER() overall_sales,
+CONCAT(ROUND((CAST(total_price AS FLOAT) / SUM(total_price) OVER() )* 100, 2 ), '%')AS percentage_of_total
+FROM category_price
+ORDER BY total_price DESC;
+
+-- ===============================================================================
+-- What percentage does each subcategory contribute to total sales?
+WITH subcategory_sales AS (
+SELECT
+p.subcategory,
+SUM(f.sales_amount) AS total_sales
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_products p 
+ON p.product_key = f.product_key
+GROUP BY p.subcategory
+)
+SELECT 
+subcategory,
+total_sales,
+CONCAT(ROUND(CAST(total_sales AS float) / SUM(total_sales) OVER() * 100, 2),'%') AS percentage_of_total
+FROM subcategory_sales
+ORDER BY percentage_of_total DESC;
+-- ========================================================================================
+-- What percentage does each country contribute to total sales?
+WITH country_sales AS (
+SELECT
+c.country,
+SUM(f.sales_amount) AS total_sales
+FROM gold.fact_sales f
+LEFT JOIN gold.dim_customer c
+ON f.customer_key = c.customer_key
+GROUP BY c.country
+)
+SELECT 
+country,
+total_sales,
+CONCAT(ROUND(CAST(total_sales AS float) / SUM(total_sales) OVER() * 100,2), '%') AS percentage_of_total
+FROM country_sales
+ORDER BY total_sales DESC;
